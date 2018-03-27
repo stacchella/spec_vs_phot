@@ -14,7 +14,7 @@ from sedpy.observate import load_filters
 from prospect.models import priors, sedmodel
 from prospect.sources import FastStepBasis
 from astropy.cosmology import WMAP9 as cosmo
-from prospect.sources.constants import lightspeed, jansky_cgs, to_cgs_at_10pc
+from prospect.sources.constants import jansky_cgs, to_cgs_at_10pc
 to_cgs = to_cgs_at_10pc
 
 # define paths
@@ -58,7 +58,7 @@ run_params = {'verbose': True,
               'mask_elines': True,
               'add_neb_emission': False,
               'zred': 2.241,
-              'agelims': [0., 7.3, 8.0, 8.5, 9.0, 9.5],  # The age bins
+              'agelims': [0., 7.3, 8.0, 8.5, 9.0, 9.3, 9.5],  # The age bins
               'zcontinuous': 1,
               }
 
@@ -251,7 +251,7 @@ model_params.append({'name': 'logzsol', 'N': 1,
                         'init': -0.5,
                         'init_disp': 0.3,
                         'units': r'$\log (Z/Z_\odot)$',
-                        'prior': priors.TopHat(mini=-1, maxi=0.0)})
+                        'prior': priors.TopHat(mini=-1, maxi=0.19)})
 
 # For zcontinuous = 2 this gives the power for the metallicity distribution
 # -99 uses a 3-pt smoothing
@@ -296,7 +296,7 @@ model_params.append({'name': 'dust_index', 'N': 1,
                         'init': -0.7,
                         'init_disp': 0.3,
                         'units': 'power-law slope',
-                        'prior':priors.TopHat(mini=-2.5, maxi=-1.3)})
+                        'prior': priors.TopHat(mini=-2.5, maxi=-1.3)})
 
 # --- Nebular Emission ------
 
@@ -340,7 +340,7 @@ model_params.append({'name': 'sigma_smooth', 'N': 1,
                         'isfree': True,
                         'init': 200.0,
                         'units': 'km/s',
-                        'prior': priors.TopHat(mini=100, maxi=300)})
+                        'prior': priors.TopHat(mini=50, maxi=250)})
 
 # You want to have this True, and in fact that is the default.
 # FFTs are *much* faster.
