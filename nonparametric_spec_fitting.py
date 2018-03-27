@@ -28,18 +28,20 @@ components = ['bulge1', 'bulge2', 'bulge3', 'disk', 'clump1', 'clump2', 'clump3'
 
 run_params = {'verbose': True,
               'debug': False,
-              'outfile': 'output/nonpar_spec',
+              'outfile': 'results/nonpar_spec',
               'infile_spec': 'data/example_spectra_with_noise.txt',
               'infile_phot': 'data/example_mags.txt',
               # dynesty params
               'nested_bound': 'multi',  # bounding method
-#              'nested_sample': 'rwalk',  # sampling method
-              'nested_sample': 'unif',  # sampling method
-              'nested_walks': 30,  # MC walks
+              #'nested_sample': 'rwalk',  # sampling method
+              'nested_sample': 'rslice',  # sampling method
+              #'nested_walks': 100,  # MC walks
+              'nested_slices': 6,
               'nested_nlive_batch': 100,  # size of live point "batches"
               'nested_nlive_init': 100,  # number of initial live points
               'nested_weight_kwargs': {'pfrac': 1.0},  # weight posterior over evidence by 100%
-              'nested_dlogz_init': 0.05,
+              'nested_dlogz_init': 0.01,
+              'nested_stop_kwargs': {'post_thresh': 0.05, 'n_mc': 50},  # higher threshold, more MCMC
               # Nestle parameters
 #              'nestle_npoints': 200,
 #              'nestle_method': 'multi',
@@ -56,7 +58,7 @@ run_params = {'verbose': True,
               'mask_elines': True,
               'add_neb_emission': False,
               'zred': 2.241,
-              'agelims': [0., 8.5, 9.0, 9.5],  # The age bins
+              'agelims': [0., 7.3, 8.0, 8.5, 9.0, 9.5],  # The age bins
               'zcontinuous': 1,
               }
 
@@ -79,7 +81,7 @@ def load_obs(zred=2.241, phot=False, spec=False, mask_elines=False, infile_phot=
 
     # --- Set spectrum ---
     if spec:
-        table_spec = Table.read(infile_spec, format='ascii')
+        table_spec = Table.read(os.getenv('WDIR') + infile_spec, format='ascii')
 
         # --- Fill the obs dictionary ----
         lumdist = cosmo.luminosity_distance(zred).value
@@ -108,13 +110,13 @@ def load_obs(zred=2.241, phot=False, spec=False, mask_elines=False, infile_phot=
 
     # --- Set photometry ---
     if phot:
-        table_phot = Table.read(infile_phot, format='ascii')
+        table_phot = Table.read(os.getenv('WDIR') + infile_phot, format='ascii')
         obs['maggies'] = table_phot['mags_' + component]
         snr = 20.0
         obs['maggies_unc'] = obs['maggies']/snr
         obs['mock_snr'] = snr
         obs['phot_mask'] = np.ones(len(obs['maggies']), dtype=bool)
-        filter_folder = os.getenv('WDIR') + 'filters/'
+        filter_folder = os.getenv('WDIR') + 'data/filters/'
         obs['filters'] = load_filters(['acs_wfc_f435w.par', 'acs_wfc_f814w.par', 'wfc3_ir_f110w.par', 'wfc3_ir_f160w.par'], directory=filter_folder)
     else:
         obs['maggies'] = None
