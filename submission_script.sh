@@ -11,16 +11,16 @@
 ### memory per cpu, in MB
 #SBATCH --mem-per-cpu=4000
 ### Job name
-#SBATCH -J 'mock_BD'
+#SBATCH -J 'run_spec_vs_phot'
 ### output and error logs
-#SBATCH -o mock_BD_%a.out
-#SBATCH -e mock_BD_%a.err
+#SBATCH -o run_svp_%a.out
+#SBATCH -e run_svp_%a.err
 ### mail
 #SBATCH --mail-type=END
 #SBATCH --mail-user=sandro.tacchella@cfa.harvard.edu
 source activate pro
-export WDIR=/n/home03/stacchella/CANDELS/prospector_fits/mock_BD/
+export WDIR=/n/home03/stacchella/proposals/spec_vs_phot/
 srun -n 1 python $APPS/prospector/scripts/prospector_dynesty.py \
---param_file=$WDIR/parameter_files/mock_BD_params.py \
---outfile=$WDIR/results/mock_BD_"${SLURM_ARRAY_TASK_ID}" \
+--param_file=$WDIR/nonparametric_spec_fitting.py \
+--outfile=$WDIR/results/mock_svp_"${SLURM_ARRAY_TASK_ID}" \
 --i_comp="${SLURM_ARRAY_TASK_ID}"

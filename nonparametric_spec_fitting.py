@@ -8,6 +8,7 @@
 
 import numpy as np
 from astropy.table import Table
+import os
 
 from sedpy.observate import load_filters
 from prospect.models import priors, sedmodel
@@ -28,7 +29,8 @@ components = ['bulge1', 'bulge2', 'bulge3', 'disk', 'clump1', 'clump2', 'clump3'
 run_params = {'verbose': True,
               'debug': False,
               'outfile': 'output/nonpar_spec',
-              'infile': 'data/example_spectra_with_noise.txt',
+              'infile_spec': 'data/example_spectra_with_noise.txt',
+              'infile_phot': 'data/example_mags.txt',
               # dynesty params
               'nested_bound': 'multi',  # bounding method
 #              'nested_sample': 'rwalk',  # sampling method
@@ -62,7 +64,7 @@ run_params = {'verbose': True,
 # OBS
 # --------------
 
-def load_obs(zred=2.241, phot=False, spec=False, mask_elines=False, infile=None, i_comp=None, **kwargs):
+def load_obs(zred=2.241, phot=False, spec=False, mask_elines=False, infile_phot=None, infile_spec=None, i_comp=None, **kwargs):
     """Load a mock
 
     :param snr:
@@ -75,31 +77,45 @@ def load_obs(zred=2.241, phot=False, spec=False, mask_elines=False, infile=None,
     # --- Set component ---
     component = components[int(float(i_comp))-1]
 
-    # --- Read in spectrum ---
-    table_spec = Table.read(infile, format='ascii')
+    # --- Set spectrum ---
+    if spec:
+        table_spec = Table.read(infile_spec, format='ascii')
 
-    # --- Fill the obs dictionary ----
-    lumdist = cosmo.luminosity_distance(zred).value
-    spec_conversion = (1 + zred) * to_cgs / (lumdist * 1e5)**2 / (3631*jansky_cgs)  # Spectrum in Lsun/Hz per solar mass formed, restframe to observed frame
-    obs = {}
-    obs['wavelength'] = table_spec['wavelength']*(1.0 + zred)
-    obs['spectrum'] = table_spec['spec_' + component] * spec_conversion
-    obs['unc'] = table_spec['spec_' + component + '_unc'] * spec_conversion
-    obs['mock_snr'] = obs['spectrum']/obs['unc']
+        # --- Fill the obs dictionary ----
+        lumdist = cosmo.luminosity_distance(zred).value
+        spec_conversion = (1 + zred) * to_cgs / (lumdist * 1e5)**2 / (3631*jansky_cgs)  # Spectrum in Lsun/Hz per solar mass formed, restframe to observed frame
+        obs = {}
+        obs['wavelength'] = table_spec['wavelength']*(1.0 + zred)
+        obs['spectrum'] = table_spec['spec_' + component] * spec_conversion
+        obs['unc'] = table_spec['spec_' + component + '_unc'] * spec_conversion
+        obs['mock_snr'] = obs['spectrum']/obs['unc']
 
-    # Masking
-    obs['mask'] = np.ones(len(obs['wavelength']), dtype=bool)
-    if mask_elines:
-        a = (1.0 + zred)  # redshift the mask
-        lines = np.array([3729, 3799.0, 3836.5, 3870., 3890.2, 3971.2,  # misc
-                          4103., 4341.7, 4862.7, 4960.3, 5008.2,  # hgamma + hdelta + hbeta + oiii
-                          5877.2, 5890.0, 6302.1, 6549.9, 6564.6, 6585.3,  # naD + oi + halpha + nii
-                          6680.0, 6718.3, 6732.7, 7137.8])  # sii
-        obs['mask'] = obs['mask'] & eline_mask(obs['wavelength'], lines * a, 18.0 * a)
+        # Masking
+        obs['mask'] = np.ones(len(obs['wavelength']), dtype=bool)
+        if mask_elines:
+            a = (1.0 + zred)  # redshift the mask
+            lines = np.array([3729, 3799.0, 3836.5, 3870., 3890.2, 3971.2,  # misc
+                              4103., 4341.7, 4862.7, 4960.3, 5008.2,  # hgamma + hdelta + hbeta + oiii
+                              5877.2, 5890.0, 6302.1, 6549.9, 6564.6, 6585.3,  # naD + oi + halpha + nii
+                              6680.0, 6718.3, 6732.7, 7137.8])  # sii
+            obs['mask'] = obs['mask'] & eline_mask(obs['wavelength'], lines * a, 18.0 * a)
+
+    else:
+        obs['wavelength'] = None
+        obs['spectrum'] = None
+        obs['unc'] = None
+        obs['mask'] = None
 
     # --- Set photometry ---
     if phot:
-
+        table_phot = Table.read(infile_phot, format='ascii')
+        obs['maggies'] = table_phot['mags_' + component]
+        snr = 20.0
+        obs['maggies_unc'] = obs['maggies']/snr
+        obs['mock_snr'] = snr
+        obs['phot_mask'] = np.ones(len(obs['maggies']), dtype=bool)
+        filter_folder = os.getenv('WDIR') + 'filters/'
+        obs['filters'] = load_filters(['acs_wfc_f435w.par', 'acs_wfc_f814w.par', 'wfc3_ir_f110w.par', 'wfc3_ir_f160w.par'], directory=filter_folder)
     else:
         obs['maggies'] = None
         obs['filters'] = None
