@@ -107,7 +107,7 @@ def load_obs(zred=2.241, phot=0, spec=0, mask_elines=False, infile_phot=None, in
     filter_folder = os.getenv('WDIR') + 'data/filters/'
     table_phot = Table.read(os.getenv('WDIR') + infile_phot, format='ascii')
     obs['maggies_truth'] = table_phot['maggies_' + component]
-    obs['filters_truth'] = load_filters(['acs_wfc_f435w', 'acs_wfc_f814w', 'wfc3_ir_f110w', 'wfc3_ir_f160w'], directory=filter_folder)
+    #obs['filters_truth'] = load_filters(['acs_wfc_f435w', 'acs_wfc_f814w', 'wfc3_ir_f110w', 'wfc3_ir_f160w'], directory=filter_folder)
 
     if (phot == 1):
         obs['maggies'] = table_phot['maggies_' + component]
