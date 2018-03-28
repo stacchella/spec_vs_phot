@@ -24,5 +24,5 @@ srun -n 1 python $APPS/prospector/scripts/prospector_dynesty.py \
 --param_file=$WDIR/nonparametric_spec_fitting.py \
 --outfile=$WDIR/results/mock_comp_"${SLURM_ARRAY_TASK_ID}" \
 --i_comp="${SLURM_ARRAY_TASK_ID}" \
---spec=True
---phot=False
+--spec=1 \
+--phot=0

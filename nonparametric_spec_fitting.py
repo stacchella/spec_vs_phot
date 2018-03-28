@@ -47,8 +47,8 @@ run_params = {'verbose': True,
               'polyorder': 0,
               # SPS parameters
               'i_comp': 0.0,  # spectrum
-              'phot': False,  # fit photometry
-              'spec': True,  # fit spectrum
+              'phot': 0,  # fit photometry
+              'spec': 1,  # fit spectrum
               'mask_elines': True,
               'add_neb_emission': False,
               'zred': 2.241,
@@ -60,7 +60,7 @@ run_params = {'verbose': True,
 # OBS
 # --------------
 
-def load_obs(zred=2.241, phot=False, spec=False, mask_elines=False, infile_phot=None, infile_spec=None, i_comp=None, **kwargs):
+def load_obs(zred=2.241, phot=0, spec=0, mask_elines=False, infile_phot=None, infile_spec=None, i_comp=None, **kwargs):
     """Load a mock
 
     :param snr:
@@ -83,7 +83,7 @@ def load_obs(zred=2.241, phot=False, spec=False, mask_elines=False, infile_phot=
     obs['wavelength_truth'] = table_spec['wavelength']*(1.0 + zred)
     obs['spectrum_truth'] = table_spec['spec_' + component] * spec_conversion
 
-    if spec:
+    if (spec == 1):
         obs['wavelength'] = table_spec['wavelength']*(1.0 + zred)
         obs['spectrum'] = table_spec['spec_' + component] * spec_conversion
         obs['unc'] = table_spec['spec_' + component + '_unc'] * spec_conversion
@@ -109,7 +109,7 @@ def load_obs(zred=2.241, phot=False, spec=False, mask_elines=False, infile_phot=
     obs['maggies_truth'] = table_phot['maggies_' + component]
     obs['filters_truth'] = load_filters(['acs_wfc_f435w', 'acs_wfc_f814w', 'wfc3_ir_f110w', 'wfc3_ir_f160w'], directory=filter_folder)
 
-    if phot:
+    if (phot == 1):
         obs['maggies'] = table_phot['maggies_' + component]
         snr = 20.0
         obs['maggies_unc'] = obs['maggies']/snr
