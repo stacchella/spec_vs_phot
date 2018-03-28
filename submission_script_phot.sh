@@ -11,10 +11,10 @@
 ### memory per cpu, in MB
 #SBATCH --mem-per-cpu=4000
 ### Job name
-#SBATCH -J 'run_spec_vs_phot'
+#SBATCH -J 'run_phot'
 ### output and error logs
-#SBATCH -o run_svp_%a.out
-#SBATCH -e run_svp_%a.err
+#SBATCH -o run_phot_%a.out
+#SBATCH -e run_phot_%a.err
 ### mail
 #SBATCH --mail-type=END
 #SBATCH --mail-user=sandro.tacchella@cfa.harvard.edu
@@ -22,7 +22,7 @@ source activate pro
 export WDIR=/n/home03/stacchella/proposals/spec_vs_phot/
 srun -n 1 python $APPS/prospector/scripts/prospector_dynesty.py \
 --param_file=$WDIR/nonparametric_spec_fitting.py \
---outfile=$WDIR/results/mock_comp_"${SLURM_ARRAY_TASK_ID}" \
+--outfile=$WDIR/results/mock_phot_comp_"${SLURM_ARRAY_TASK_ID}" \
 --i_comp="${SLURM_ARRAY_TASK_ID}" \
---spec=1 \
---phot=0
+--spec=0 \
+--phot=1
