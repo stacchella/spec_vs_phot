@@ -92,8 +92,8 @@ def load_obs(zred=2.241, phot=0, spec=0, mask_elines=False, infile_phot=None, in
         obs['mask'] = np.ones(len(obs['wavelength']), dtype=bool)
         if mask_elines:
             a = (1.0 + zred)  # redshift the mask
-            lines = np.array([3729, 3799.0, 3836.5, 3870., 3890.2, 3971.2,  # misc
-                              4103., 4341.7, 4862.7, 4960.3, 5008.2,  # hgamma + hdelta + hbeta + oiii
+            lines = np.array([3729.0, 3799.0, 3836.5, 3870.0, 3890.2, 3971.2,  # misc
+                              4103.0, 4341.7, 4862.7, 4960.3, 5008.2,  # hgamma + hdelta + hbeta + oiii
                               5877.2, 5890.0, 6302.1, 6549.9, 6564.6, 6585.3,  # naD + oi + halpha + nii
                               6680.0, 6718.3, 6732.7, 7137.8])  # sii
             obs['mask'] = obs['mask'] & eline_mask(obs['wavelength'], lines * a, 18.0 * a)
