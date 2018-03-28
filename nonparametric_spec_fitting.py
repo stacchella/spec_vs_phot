@@ -107,7 +107,7 @@ def load_obs(zred=2.241, phot=False, spec=False, mask_elines=False, infile_phot=
     filter_folder = os.getenv('WDIR') + 'data/filters/'
     table_phot = Table.read(os.getenv('WDIR') + infile_phot, format='ascii')
     obs['maggies_truth'] = table_phot['maggies_' + component]
-    obs['filters_truth'] = load_filters(['acs_wfc_f435w.par', 'acs_wfc_f814w.par', 'wfc3_ir_f110w.par', 'wfc3_ir_f160w.par'], directory=filter_folder)
+    obs['filters_truth'] = load_filters(['acs_wfc_f435w', 'acs_wfc_f814w', 'wfc3_ir_f110w', 'wfc3_ir_f160w'], directory=filter_folder)
 
     if phot:
         obs['maggies'] = table_phot['maggies_' + component]
@@ -115,7 +115,7 @@ def load_obs(zred=2.241, phot=False, spec=False, mask_elines=False, infile_phot=
         obs['maggies_unc'] = obs['maggies']/snr
         obs['mock_snr'] = snr
         obs['phot_mask'] = np.ones(len(obs['maggies']), dtype=bool)
-        obs['filters'] = load_filters(['acs_wfc_f435w.par', 'acs_wfc_f814w.par', 'wfc3_ir_f110w.par', 'wfc3_ir_f160w.par'], directory=filter_folder)
+        obs['filters'] = load_filters(['acs_wfc_f435w', 'acs_wfc_f814w', 'wfc3_ir_f110w', 'wfc3_ir_f160w'], directory=filter_folder)
     else:
         obs['maggies'] = None
         obs['filters'] = None
